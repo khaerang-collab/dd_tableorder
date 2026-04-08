@@ -16,10 +16,12 @@ interface Props { cartAmount: number; }
 
 export default function PromotionNudge({ cartAmount }: Props) {
   const [nudges, setNudges] = useState<Nudge[]>([]);
-  const storeId = authService.getStoreId();
+  const [storeId, setStoreId] = useState<number | null>(null);
+
+  useEffect(() => { setStoreId(authService.getStoreId()); }, []);
 
   useEffect(() => {
-    if (!storeId || cartAmount <= 0) { setNudges([]); return; }
+    if (!storeId) { return; }
     fetch(`/api/stores/${storeId}/promotions/nudge?cartAmount=${cartAmount}`)
       .then((r) => r.json()).then(setNudges).catch(() => {});
   }, [storeId, cartAmount]);
