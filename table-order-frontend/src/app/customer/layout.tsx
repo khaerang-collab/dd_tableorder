@@ -51,7 +51,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         )}
       </header>
 
-      {storeName && (
+      {storeName && tableNumber > 0 && (
         <div className="bg-white px-6 py-4 border-b border-coolGray-200">
           <div className="flex items-center justify-between">
             <h1 className="text-t3 text-coolGray-900">{storeName}</h1>
