@@ -78,7 +78,6 @@ export default function MenuPage() {
         </div>
       ))}
 
-      {/* 매장 정보 Footer */}
       <div className="bg-white px-6 py-6">
         <p className="text-t7 font-semibold text-coolGray-700">가게정보·원산지</p>
         <p className="text-t7 text-coolGray-500 mt-1">매장 정보는 관리자에게 문의하세요.</p>

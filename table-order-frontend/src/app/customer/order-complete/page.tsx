@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function OrderCompletePage() {
   const router = useRouter();
@@ -22,11 +23,11 @@ export default function OrderCompletePage() {
       <div className="text-6xl mb-6">✅</div>
       <h1 className="text-t3 text-coolGray-900">주문 완료!</h1>
       <p className="text-t5 text-coolGray-500 mt-2">{countdown}초 후 메뉴판으로 이동합니다</p>
-      <a href="/customer"
-         className="mt-8 px-8 py-4 rounded-2xl bg-yellow-400 text-coolGray-900 text-t6 font-bold"
-         data-testid="back-to-menu-button">
+      <Link href="/customer"
+            className="mt-8 px-8 py-4 rounded-2xl bg-yellow-400 text-coolGray-900 text-t6 font-bold"
+            data-testid="back-to-menu-button">
         메뉴판으로
-      </a>
+      </Link>
     </div>
   );
 }

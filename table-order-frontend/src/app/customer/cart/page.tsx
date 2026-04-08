@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { api } from '@/services/api';
 import { authService } from '@/services/auth';
 import { wsService } from '@/services/websocket';
@@ -68,7 +69,7 @@ export default function CartPage() {
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-coolGray-400">
           <p className="text-t5">장바구니가 비어 있어요</p>
-          <a href="/customer" className="mt-4 text-blue-300 text-t6">메뉴 보러 가기</a>
+          <Link href="/customer" className="mt-4 text-blue-300 text-t6">메뉴 보러 가기</Link>
         </div>
       ) : (
         <div>

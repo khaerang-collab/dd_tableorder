@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { api } from '@/services/api';
 import { authService } from '@/services/auth';
 import { formatPrice, formatDateTime } from '@/lib/utils';
@@ -53,11 +54,11 @@ export default function OrderHistoryPage() {
 
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-mobile z-30 p-4 bg-white border-t border-coolGray-200"
            style={{ paddingBottom: 'calc(var(--safe-area-bottom) + 16px)' }}>
-        <a href="/customer"
-           className="block w-full py-4 rounded-2xl bg-yellow-400 text-coolGray-900 text-t6 font-bold text-center"
-           data-testid="back-to-menu-button">
+        <Link href="/customer"
+              className="block w-full py-4 rounded-2xl bg-yellow-400 text-coolGray-900 text-t6 font-bold text-center"
+              data-testid="back-to-menu-button">
           추가 주문하기
-        </a>
+        </Link>
       </div>
     </div>
   );

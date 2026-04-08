@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { authService } from '@/services/auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -33,12 +34,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
       <nav className="bg-white border-b border-coolGray-200 flex">
         {navItems.map((item) => (
-          <a key={item.href} href={item.href}
-             className={`flex-1 text-center py-3 text-t7 ${pathname === item.href
-               ? 'text-blue-300 font-bold border-b-2 border-blue-300' : 'text-coolGray-500'}`}
-             data-testid={`admin-nav-${item.label}`}>
+          <Link key={item.href} href={item.href}
+                className={`flex-1 text-center py-3 text-t7 ${pathname === item.href
+                  ? 'text-blue-300 font-bold border-b-2 border-blue-300' : 'text-coolGray-500'}`}
+                data-testid={`admin-nav-${item.label}`}>
             {item.icon} {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
       <main className="p-4">{children}</main>
