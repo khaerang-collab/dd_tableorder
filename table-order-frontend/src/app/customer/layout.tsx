@@ -59,16 +59,8 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
 
   return (
     <div className="mobile-container">
-      <header className="sticky top-0 z-20 bg-white border-b border-coolGray-200 px-4 py-3 flex items-center justify-between"
+      <header className="sticky top-0 z-20 bg-white border-b border-coolGray-200 px-4 py-3 flex items-center justify-end"
               style={{ paddingTop: 'calc(var(--safe-area-top) + 12px)' }}>
-        <button
-          className={`text-t5 flex items-center gap-1 ${cooldown ? 'text-coolGray-300' : 'text-coolGray-700'}`}
-          data-testid="staff-call-button"
-          disabled={cooldown}
-          onClick={() => !cooldown && setShowCallSheet(true)}
-        >
-          🔔 {cooldown ? '호출완료' : '직원호출'}
-        </button>
         <Link href="/customer/orders" className="text-t5 text-coolGray-900" data-testid="order-history-link">
           주문내역
         </Link>
@@ -90,6 +82,21 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       )}
 
       {children}
+
+      {/* 직원호출 플로팅 버튼 */}
+      <button
+        className={`fixed z-30 right-4 bottom-24 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-xl transition-all ${
+          cooldown
+            ? 'bg-coolGray-200 text-coolGray-400'
+            : 'bg-yellow-400 text-coolGray-900 active:scale-95'
+        }`}
+        style={{ bottom: 'calc(var(--safe-area-bottom, 0px) + 96px)' }}
+        data-testid="staff-call-button"
+        disabled={cooldown}
+        onClick={() => !cooldown && setShowCallSheet(true)}
+      >
+        🔔
+      </button>
 
       {/* 직원호출 바텀시트 */}
       {showCallSheet && (
