@@ -23,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/dashboard', label: '주문현황', icon: '📋' },
     { href: '/admin/tables', label: '테이블', icon: '🪑' },
     { href: '/admin/menus', label: '메뉴관리', icon: '🍽️' },
+    { href: '/admin/promotions', label: '프로모션', icon: '🎁' },
   ];
 
   return (

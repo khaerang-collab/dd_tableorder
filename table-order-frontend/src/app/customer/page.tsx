@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/services/api';
 import { authService } from '@/services/auth';
 import { wsService } from '@/services/websocket';
@@ -8,17 +9,27 @@ import CategoryTabs from '@/components/shared/CategoryTabs';
 import MenuListItem from '@/components/shared/MenuListItem';
 import CartFloatingBar from '@/components/shared/CartFloatingBar';
 import Toast from '@/components/shared/Toast';
+import PromotionNudge from '@/components/customer/PromotionNudge';
 import type { MenuCategory, Cart } from '@/types';
 
 export default function MenuPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
   const [toast, setToast] = useState('');
   const sectionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [storeId, setStoreId] = useState<number | null>(null);
+  const [sessionId, setSessionId] = useState<number | null>(null);
 
-  const storeId = authService.getStoreId();
-  const sessionId = authService.getSessionId();
+  useEffect(() => {
+    if (!authService.isLoggedIn()) {
+      router.replace('/customer/table-login?storeId=1&table=1');
+      return;
+    }
+    setStoreId(authService.getStoreId());
+    setSessionId(authService.getSessionId());
+  }, [router]);
 
   useEffect(() => {
     if (!storeId) return;
@@ -30,7 +41,7 @@ export default function MenuPage() {
 
   useEffect(() => {
     if (!sessionId) return;
-    api.getCart(sessionId).then(setCart);
+    api.getCart(sessionId).then(setCart).catch(() => {});
   }, [sessionId]);
 
   useEffect(() => {
@@ -48,7 +59,11 @@ export default function MenuPage() {
   }, []);
 
   const handleAddToCart = async (menuId: number, menuName: string) => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      setToast('로그인이 필요합니다');
+      router.replace('/customer/table-login?storeId=1&table=1');
+      return;
+    }
     try {
       const updated = await api.addCartItem(sessionId, menuId, 1);
       setCart(updated);
@@ -65,8 +80,9 @@ export default function MenuPage() {
       <CategoryTabs categories={tabCategories} activeId={activeCategory} onSelect={handleCategorySelect} />
 
       {categories.map((cat) => (
-        <div key={cat.categoryId} ref={(el) => { sectionRefs.current[cat.categoryId] = el; }}>
-          <div className="px-6 py-3 bg-white">
+        <div key={cat.categoryId}>
+          <div ref={(el) => { sectionRefs.current[cat.categoryId] = el; }}
+               className="px-6 py-3 bg-white scroll-mt-[100px]">
             <h2 className="text-t5 font-bold text-coolGray-900">{cat.categoryName}</h2>
           </div>
           {cat.menus.map((menu) => (
@@ -83,6 +99,7 @@ export default function MenuPage() {
         <p className="text-t7 text-coolGray-500 mt-1">매장 정보는 관리자에게 문의하세요.</p>
       </div>
 
+      <PromotionNudge cartAmount={cart?.totalAmount || 0} hasCartItems={(cart?.items.length || 0) > 0} />
       <CartFloatingBar totalAmount={cart?.totalAmount || 0} itemCount={cart?.items.length || 0} />
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>

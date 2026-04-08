@@ -1,27 +1,24 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { api } from '@/services/api';
 import { authService } from '@/services/auth';
 import { KAKAO_JS_KEY } from '@/lib/constants';
 
-export default function TableLoginPage() {
+function TableLoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const storeId = Number(searchParams.get('storeId'));
-  const tableNumber = Number(searchParams.get('table'));
+  const storeId = Number(searchParams.get('storeId')) || 1;
+  const tableNumber = Number(searchParams.get('table')) || 1;
 
   const handleKakaoLogin = async () => {
     setLoading(true);
     setError('');
-
     try {
-      // 카카오 SDK를 통한 로그인 (실제 구현 시 Kakao JS SDK 사용)
-      // 여기서는 카카오 OAuth redirect 방식 사용
       const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_JS_KEY}&redirect_uri=${encodeURIComponent(window.location.origin + '/customer/auth/kakao/callback')}&response_type=code&state=${storeId}_${tableNumber}`;
       window.location.href = kakaoAuthUrl;
     } catch (e) {
@@ -30,16 +27,16 @@ export default function TableLoginPage() {
     }
   };
 
-  // 개발 모드: 카카오 없이 테스트 접속
   const handleDevAccess = async () => {
     setLoading(true);
+    setError('');
     try {
-      // 개발용: 카카오 토큰 없이 직접 접속 (백엔드에서 처리 필요)
       const res = await api.kakaoLogin(storeId, tableNumber, 'dev-test-token');
       authService.saveCustomerSession(res);
-      router.push('/customer');
+      window.location.href = '/customer';
     } catch (e: any) {
-      setError(e.message || '접속에 실패했습니다');
+      console.error('Dev login error:', e);
+      setError(`오류: ${e.message} (storeId=${storeId}, table=${tableNumber})`);
       setLoading(false);
     }
   };
@@ -61,13 +58,19 @@ export default function TableLoginPage() {
 
       {error && <p className="text-red-300 text-t7 mt-4">{error}</p>}
 
-      {process.env.NODE_ENV === 'development' && (
-        <button onClick={handleDevAccess} disabled={loading}
-                className="mt-4 text-coolGray-400 text-t7 underline"
-                data-testid="dev-access-button">
-          (개발용) 카카오 없이 접속
-        </button>
-      )}
+      <button onClick={handleDevAccess} disabled={loading}
+              className="mt-4 text-coolGray-400 text-t7 underline"
+              data-testid="dev-access-button">
+        (개발용) 카카오 없이 접속
+      </button>
     </div>
+  );
+}
+
+export default function TableLoginPage() {
+  return (
+    <Suspense fallback={<div className="mobile-container min-h-screen flex items-center justify-center bg-white"><p>로딩 중...</p></div>}>
+      <TableLoginContent />
+    </Suspense>
   );
 }

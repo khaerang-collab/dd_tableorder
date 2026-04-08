@@ -10,6 +10,7 @@ import com.tableorder.order.entity.Order;
 import com.tableorder.order.entity.OrderItem;
 import com.tableorder.order.repository.OrderRepository;
 import com.tableorder.order.sse.OrderSseService;
+import com.tableorder.recommend.service.RecommendService;
 import com.tableorder.table.entity.RestaurantTable;
 import com.tableorder.table.entity.TableSession;
 import com.tableorder.table.repository.TableRepository;
@@ -34,6 +35,7 @@ public class OrderService {
     private final TableSessionRepository sessionRepository;
     private final TableRepository tableRepository;
     private final CustomerProfileService customerProfileService;
+    private final RecommendService recommendService;
 
     @Transactional
     public OrderResponse createOrder(Long sessionId) {
@@ -42,6 +44,9 @@ public class OrderService {
 
         TableSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new NotFoundException("세션을 찾을 수 없습니다"));
+        if (TableSession.COMPLETED.equals(session.getStatus())) {
+            throw new ForbiddenException("이용 완료된 세션입니다. 다시 QR을 스캔해주세요.");
+        }
         RestaurantTable table = session.getTable();
 
         String orderNumber = generateOrderNumber();
@@ -50,11 +55,21 @@ public class OrderService {
 
         int total = 0;
         for (CartItem ci : cartItems) {
+            // 주문자 닉네임 조회
+            String nickname = null;
+            if (ci.getCustomerProfileId() != null) {
+                try { nickname = customerProfileService.getById(ci.getCustomerProfileId()).getNickname(); }
+                catch (Exception e) { /* ignore */ }
+            }
+
             OrderItem oi = OrderItem.builder()
                     .order(order).menuId(ci.getMenu().getId())
                     .menuName(ci.getMenu().getName())
                     .quantity(ci.getQuantity())
-                    .unitPrice(ci.getMenu().getPrice()).build();
+                    .unitPrice(ci.getMenu().getPrice())
+                    .customerProfileId(ci.getCustomerProfileId())
+                    .customerNickname(nickname)
+                    .build();
             order.getItems().add(oi);
             total += ci.getQuantity() * ci.getMenu().getPrice();
 
@@ -65,6 +80,10 @@ public class OrderService {
         order.setTotalAmount(total);
         orderRepository.save(order);
         cartService.clearAll(sessionId);
+
+        // 페어링 데이터 업데이트
+        try { recommendService.updatePairings(table.getStore().getId(), order.getItems()); }
+        catch (Exception e) { /* 추천 업데이트 실패해도 주문은 정상 진행 */ }
 
         cartWebSocketHandler.broadcast(sessionId, "CART_CLEARED", Map.of("reason", "ORDER_PLACED"));
         orderSseService.publish(table.getStore().getId(), "NEW_ORDER", Map.of(
@@ -124,13 +143,14 @@ public class OrderService {
     }
 
     private String generateOrderNumber() {
-        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        return ts + "-" + String.format("%04d", new Random().nextInt(10000));
+        long maxId = orderRepository.findAll().stream()
+                .mapToLong(Order::getId).max().orElse(0);
+        return String.valueOf(maxId + 1);
     }
 
     private OrderResponse toResponse(Order o) {
         List<OrderItemResponse> items = o.getItems().stream()
-                .map(i -> new OrderItemResponse(i.getId(), i.getMenuName(), i.getQuantity(), i.getUnitPrice()))
+                .map(i -> new OrderItemResponse(i.getId(), i.getMenuName(), i.getQuantity(), i.getUnitPrice(), i.getCustomerProfileId(), i.getCustomerNickname()))
                 .toList();
         return new OrderResponse(o.getId(), o.getOrderNumber(), o.getTotalAmount(), o.getStatus(), items, o.getCreatedAt());
     }

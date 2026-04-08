@@ -1,80 +1,58 @@
 package com.tableorder.staffcall.service;
 
+import com.tableorder.common.exception.BusinessException;
 import com.tableorder.common.exception.NotFoundException;
-import com.tableorder.order.sse.OrderSseService;
+import com.tableorder.staffcall.dto.StaffCallRequest;
 import com.tableorder.staffcall.dto.StaffCallResponse;
 import com.tableorder.staffcall.entity.StaffCall;
 import com.tableorder.staffcall.repository.StaffCallRepository;
-import com.tableorder.table.entity.RestaurantTable;
-import com.tableorder.table.entity.TableSession;
-import com.tableorder.table.repository.TableSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class StaffCallService {
 
-    private final StaffCallRepository staffCallRepository;
-    private final TableSessionRepository sessionRepository;
-    private final OrderSseService orderSseService;
+    private final StaffCallRepository repository;
 
     @Transactional
-    public StaffCallResponse createCall(Long sessionId, String reason, String message) {
-        TableSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new NotFoundException("세션을 찾을 수 없습니다"));
-        RestaurantTable table = session.getTable();
-        Long storeId = table.getStore().getId();
+    public StaffCallResponse createCall(Long storeId, StaffCallRequest request) {
+        // 30초 쿨다운
+        boolean recentCall = repository.existsByTableIdAndStatusAndCreatedAtAfter(
+                request.tableId(), StaffCall.PENDING, LocalDateTime.now().minusSeconds(30));
+        if (recentCall) {
+            throw new CooldownException();
+        }
 
-        StaffCall call = StaffCall.builder()
-                .storeId(storeId)
-                .tableId(table.getId())
-                .tableNumber(table.getTableNumber())
-                .sessionId(sessionId)
-                .reason(reason)
-                .message(message)
-                .build();
-
-        staffCallRepository.save(call);
-
-        // SSE로 관리자에게 알림
-        orderSseService.publish(storeId, "STAFF_CALL", Map.of(
-                "callId", call.getId(),
-                "tableNumber", call.getTableNumber(),
-                "reason", call.getReason(),
-                "message", call.getMessage() != null ? call.getMessage() : "",
-                "calledAt", call.getCalledAt().toString()
-        ));
-
+        StaffCall call = repository.save(StaffCall.builder()
+                .storeId(storeId).tableId(request.tableId()).tableNumber(request.tableNumber())
+                .reason(request.reason()).customMessage(request.customMessage()).build());
         return toResponse(call);
-    }
-
-    public List<StaffCallResponse> getCallsByStore(Long storeId) {
-        return staffCallRepository.findByStoreIdOrderByCalledAtDesc(storeId)
-                .stream().map(this::toResponse).toList();
     }
 
     public List<StaffCallResponse> getPendingCalls(Long storeId) {
-        return staffCallRepository.findByStoreIdAndStatusOrderByCalledAtDesc(storeId, StaffCall.PENDING)
+        return repository.findByStoreIdAndStatusOrderByCreatedAtDesc(storeId, StaffCall.PENDING)
                 .stream().map(this::toResponse).toList();
     }
 
     @Transactional
-    public StaffCallResponse attendCall(Long callId) {
-        StaffCall call = staffCallRepository.findById(callId)
+    public void resolveCall(Long callId) {
+        StaffCall call = repository.findById(callId)
                 .orElseThrow(() -> new NotFoundException("호출을 찾을 수 없습니다"));
-        call.setStatus(StaffCall.ATTENDED);
-        call.setAttendedAt(LocalDateTime.now());
-        return toResponse(call);
+        call.setStatus(StaffCall.RESOLVED);
+        call.setResolvedAt(LocalDateTime.now());
     }
 
     private StaffCallResponse toResponse(StaffCall c) {
         return new StaffCallResponse(c.getId(), c.getTableId(), c.getTableNumber(),
-                c.getReason(), c.getMessage(), c.getStatus(), c.getCalledAt(), c.getAttendedAt());
+                c.getReason(), c.getCustomMessage(), c.getStatus(), c.getCreatedAt());
+    }
+
+    static class CooldownException extends BusinessException {
+        CooldownException() { super("COOLDOWN", "30초 후에 다시 호출해주세요"); }
     }
 }

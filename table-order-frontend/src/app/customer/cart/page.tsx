@@ -10,6 +10,14 @@ import Toast from '@/components/shared/Toast';
 import { formatPrice } from '@/lib/utils';
 import type { Cart, CartItem } from '@/types';
 
+interface Nudge {
+  minOrderAmount: number;
+  rewardDescription: string;
+  currentAmount: number;
+  remainingAmount: number;
+  achieved: boolean;
+}
+
 export default function CartPage() {
   const router = useRouter();
   const [cart, setCart] = useState<Cart | null>(null);
@@ -56,8 +64,27 @@ export default function CartPage() {
     }
   };
 
+  const [achievedPromotions, setAchievedPromotions] = useState<Nudge[]>([]);
+
+  useEffect(() => {
+    const storeId = authService.getStoreId();
+    const amount = cart?.totalAmount || 0;
+    if (!storeId || amount === 0) { setAchievedPromotions([]); return; }
+    const baseUrl = `${window.location.protocol}//${window.location.hostname}:8080`;
+    fetch(`${baseUrl}/api/stores/${storeId}/promotions/nudge?cartAmount=${amount}`)
+      .then((r) => r.json())
+      .then((data: Nudge[]) => setAchievedPromotions(data.filter((n) => n.achieved)))
+      .catch(() => {});
+  }, [cart?.totalAmount]);
+
   const items = cart?.items || [];
   const isMyItem = (item: CartItem) => item.customerProfileId === myProfileId;
+
+  const EMOJIS = ['😊', '🐶', '🐱', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', '🐰', '🐙', '🦄', '🐳'];
+  const profileEmoji = (profileId?: number) => {
+    if (!profileId) return '👤';
+    return EMOJIS[profileId % EMOJIS.length];
+  };
 
   return (
     <div className="bg-white min-h-screen pb-32">
@@ -81,8 +108,8 @@ export default function CartPage() {
                 {item.profileImageUrl ? (
                   <img src={item.profileImageUrl} alt="" className="w-8 h-8 rounded-full" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-coolGray-100 flex items-center justify-center text-sm">
-                    {item.nickname?.charAt(0) || '👤'}
+                  <div className="w-8 h-8 rounded-full bg-coolGray-100 flex items-center justify-center text-lg">
+                    {profileEmoji(item.customerProfileId)}
                   </div>
                 )}
                 {isMyItem(item) && (
@@ -109,6 +136,22 @@ export default function CartPage() {
                         className="ml-2 text-red-300 text-t7"
                         data-testid={`cart-item-remove-${item.id}`}>삭제</button>
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 서비스로 받은 항목 */}
+      {achievedPromotions.length > 0 && (
+        <div className="mx-6 my-4">
+          <p className="text-t7 font-bold text-green-300 mb-2">🎁 서비스로 받았어요</p>
+          {achievedPromotions.map((promo, i) => (
+            <div key={i} className="flex items-center justify-between bg-green-50 rounded-xl px-4 py-3 mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎉</span>
+                <span className="text-t6 text-coolGray-900">{promo.rewardDescription}</span>
+              </div>
+              <span className="text-t6 font-bold text-green-300">0원</span>
             </div>
           ))}
         </div>

@@ -48,6 +48,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/customer/auth/**").permitAll()
                 .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/api/stores/*/menus").permitAll()
+                .requestMatchers("/api/stores/*/menus/*/pairings").permitAll()
+                .requestMatchers("/api/stores/*/promotions/nudge").permitAll()
                 .requestMatchers("/api/images/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()

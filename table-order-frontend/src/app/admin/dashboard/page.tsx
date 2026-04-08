@@ -8,44 +8,35 @@ import { formatPrice, formatDateTime } from '@/lib/utils';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from '@/lib/constants';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import Toast from '@/components/shared/Toast';
-import type { Dashboard, Order, TableOrderSummary, StaffCall } from '@/types';
+import type { Dashboard, Order, TableOrderSummary } from '@/types';
 
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableOrderSummary | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; action: () => void } | null>(null);
   const [toast, setToast] = useState('');
-  const [staffCalls, setStaffCalls] = useState<StaffCall[]>([]);
-  const storeId = authService.getStoreId();
+  const [storeId, setStoreId] = useState<number | null>(null);
+
+  useEffect(() => { setStoreId(authService.getStoreId()); }, []);
 
   const loadDashboard = useCallback(() => {
-    if (storeId) api.getDashboard(storeId).then(setDashboard);
-  }, [storeId]);
-
-  const loadStaffCalls = useCallback(() => {
-    if (storeId) api.getStaffCalls(storeId).then(setStaffCalls).catch(() => {});
+    if (storeId) api.getDashboard(storeId).then((data) => {
+      setDashboard(data);
+      setSelectedTable((prev) => {
+        if (!prev) return null;
+        return data.tables.find((t: TableOrderSummary) => t.tableId === prev.tableId) ?? null;
+      });
+    }).catch(() => {});
   }, [storeId]);
 
   useEffect(() => {
     loadDashboard();
-    loadStaffCalls();
     if (storeId) {
       sseService.connect(storeId);
-      const unsub = sseService.onEvent((eventType) => {
-        loadDashboard();
-        if (eventType === 'STAFF_CALL') loadStaffCalls();
-      });
+      const unsub = sseService.onEvent(() => loadDashboard());
       return () => { unsub(); sseService.disconnect(); };
     }
-  }, [storeId, loadDashboard, loadStaffCalls]);
-
-  const attendCall = async (callId: number) => {
-    try {
-      await api.attendStaffCall(callId);
-      setStaffCalls(prev => prev.filter(c => c.id !== callId));
-      setToast('호출 응대 완료');
-    } catch { setToast('처리에 실패했습니다'); }
-  };
+  }, [storeId, loadDashboard]);
 
   const updateStatus = async (orderId: number, status: string) => {
     try {
@@ -82,36 +73,6 @@ export default function DashboardPage() {
   return (
     <div>
       <h2 className="text-t5 font-bold text-coolGray-900 mb-4">주문 대시보드</h2>
-
-      {/* 직원호출 알림 */}
-      {staffCalls.length > 0 && (
-        <div className="mb-4 space-y-2" data-testid="staff-call-panel">
-          <h3 className="text-t6 font-bold text-red-300 flex items-center gap-1">
-            🔔 직원호출 ({staffCalls.length}건)
-          </h3>
-          {staffCalls.map((call) => (
-            <div key={call.id}
-                 className="bg-red-10 border border-red-200 rounded-xl p-4 flex items-center justify-between animate-pulse"
-                 data-testid={`staff-call-${call.id}`}>
-              <div>
-                <span className="text-t5 font-bold text-red-300">{call.tableNumber}번 테이블</span>
-                <span className="text-t7 text-coolGray-700 ml-2">{call.reason}</span>
-                {call.message && <p className="text-t7 text-coolGray-500 mt-1">{call.message}</p>}
-                <p className="text-[11px] text-coolGray-400 mt-1">
-                  {new Date(call.calledAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
-              <button
-                onClick={() => attendCall(call.id)}
-                className="px-4 py-2 rounded-lg bg-blue-300 text-white text-t7 font-bold shrink-0"
-                data-testid={`attend-call-${call.id}`}
-              >
-                확인
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {dashboard?.tables.map((table) => (
@@ -155,7 +116,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="mt-2 space-y-1">
                     {order.items.map((item) => (
-                      <p key={item.id} className="text-t7 text-coolGray-700">{item.menuName} × {item.quantity}</p>
+                      <p key={item.id} className="text-t7 text-coolGray-700">
+                        {item.menuName} × {item.quantity}
+                        {item.customerNickname && (
+                          <span className="ml-1 text-blue-300 text-[11px]">({item.customerNickname})</span>
+                        )}
+                      </p>
                     ))}
                   </div>
                   <div className="flex justify-between items-center mt-3 pt-2 border-t border-coolGray-100">

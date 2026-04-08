@@ -5,12 +5,18 @@ function getToken(): string | null {
   return localStorage.getItem('token');
 }
 
+function getBaseUrl(): string {
+  if (typeof window === 'undefined') return 'http://localhost:8080';
+  return `${window.location.protocol}//${window.location.hostname}:8080`;
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = { 'Content-Type': 'application/json', ...options.headers as Record<string, string> };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(path, { ...options, headers });
+  const url = path.startsWith('/api') ? `${getBaseUrl()}${path}` : path;
+  const res = await fetch(url, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: '요청에 실패했습니다' }));
     throw new Error(err.message || `HTTP ${res.status}`);

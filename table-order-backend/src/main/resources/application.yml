@@ -30,7 +30,7 @@ app:
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
   rate-limit:
-    requests-per-minute: 60
+    requests-per-minute: 300
   login:
     max-attempts: 5
     lock-duration-minutes: 15
