@@ -150,3 +150,31 @@
 **Context**: INCEPTION - Application Design complete, awaiting user approval
 
 ---
+
+## Application Design - User Approval
+**Timestamp**: 2026-04-08T11:32:00Z
+**User Input**: "승인하고 작업 내용 깃에 올려"
+**AI Response**: Application Design 승인 확인. GitHub push 완료 (commit 886938b). Units Generation 단계로 진행.
+**Context**: INCEPTION - Application Design APPROVED, pushed to GitHub, proceeding to Units Generation
+
+---
+
+## Feature Addition - SNS 간편 로그인 및 고객 프로필
+**Timestamp**: 2026-04-08T11:40:00Z
+**User Input**: "나중에 마케팅 같은 용도로 활용하기 위해 유저의 식별할 수 있는 구분자가 필요해(성별이나 선호 메뉴,연령 누구인지 등등) 어떻게 하면 쉽게 수집할 수 있을까?"
+**User Decision**: SNS 간편 로그인 (카카오 OAuth) 선택. 비회원 주문도 허용.
+**AI Response**: FR-C06(SNS 로그인 + 고객 프로필), FR-A06(고객 데이터 조회) 추가. FR-C01에 카카오 로그인/비회원 선택 화면 추가. CustomerProfile 엔티티 추가. Epic 11 (US-11.1~11.3, 고객용), Epic 12 (US-12.1, 관리자용) 4개 스토리 추가. 총 27개 스토리 (P0 19개, P1 8개).
+**Context**: Requirements + User Stories updated with SNS login and customer profiling features
+
+---
+
+## Feature Update - 장바구니 표시 방식 변경
+**Timestamp**: 2026-04-08T11:45:00Z
+**User Input**: "장바구니에 순차적으로 담아놓은 메뉴가 다 보이고 거기에 주문자의 구분자(아이콘이나 색상이나 주문자 1같은 것)이 있길 바래"
+**User Decisions**:
+- 구분자 방식: 아바타 아이콘 (카카오 프로필 이미지 / 비회원 자동 이모지)
+- 수정 권한: 모든 항목 수정 가능 (누구나 모든 메뉴 수량 변경/삭제 가능)
+**AI Response**: FR-C03 장바구니 표시 방식 변경 - "내 메뉴/멤버 메뉴" 그룹 분리 → 시간순 통합 리스트 + 주문자 아바타 아이콘. 수정 권한을 본인만에서 전체로 확대. US-3.1, US-3.2, US-4.1 업데이트.
+**Context**: Requirements + User Stories updated with chronological cart display and avatar icons
+
+---
