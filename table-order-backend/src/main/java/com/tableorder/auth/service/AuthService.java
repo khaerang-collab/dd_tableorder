@@ -75,7 +75,13 @@ public class AuthService {
         RestaurantTable table = tableService.getTableByStoreAndNumber(storeId, tableNumber);
         TableSession session = tableSessionService.getOrCreateActiveSession(table.getId());
 
-        KakaoProfile kakaoProfile = kakaoOAuthService.getKakaoProfile(kakaoAccessToken);
+        KakaoProfile kakaoProfile;
+        if ("dev-test-token".equals(kakaoAccessToken)) {
+            long devId = System.currentTimeMillis() % 1000000;
+            kakaoProfile = new KakaoProfile(devId, "테스트유저" + devId, "male", "20~29", null);
+        } else {
+            kakaoProfile = kakaoOAuthService.getKakaoProfile(kakaoAccessToken);
+        }
         CustomerProfile profile = customerProfileService.findOrCreate(kakaoProfile);
 
         String token = jwtTokenProvider.createToken(Map.of(

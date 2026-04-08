@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/constants';
 import type { Cart, Dashboard, KakaoLoginResponse, AdminLoginResponse, MenuCategory, Order, RestaurantTable, OrderHistory } from '@/types';
 
 function getToken(): string | null {
@@ -11,7 +10,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json', ...options.headers as Record<string, string> };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const res = await fetch(path, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: '요청에 실패했습니다' }));
     throw new Error(err.message || `HTTP ${res.status}`);
@@ -92,7 +91,7 @@ export const api = {
     const token = getToken();
     const formData = new FormData();
     formData.append('file', file);
-    const res = await fetch(`${API_URL}/api/admin/stores/${storeId}/images`, {
+    const res = await fetch(`/api/admin/stores/${storeId}/images`, {
       method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
     });
