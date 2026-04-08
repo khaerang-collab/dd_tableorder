@@ -231,3 +231,11 @@ Part 2 (Generation) 진행 중: 3개 병렬 에이전트로 코드 생성 실행
 **Context**: CONSTRUCTION - Code Generation IN PROGRESS
 
 ---
+
+## Deployment Strategy Change - API Routes Proxy
+**Timestamp**: 2026-04-08T13:15:00Z
+**User Input**: "B로 구성해주세요. 서버로 통신하기 위핸 공인IP도 필요하지 않나요?"
+**AI Response**: 배포 전략을 B안(Next.js API Routes 프록시)으로 변경. 브라우저→Amplify API Routes→EC2 구조. EC2에 Elastic IP(고정 공인 IP) 필요. CORS 설정은 WebSocket/SSE 직접 연결용으로만 유지. requirements.md, nfr-requirements.md (NFR-DEPLOY-04, 07, 08 추가), tech-stack-decisions.md (프록시 패턴 구성도, EC2 네트워크 설정) 업데이트.
+**Context**: CONSTRUCTION - Deployment strategy changed to API Routes proxy pattern with Elastic IP
+
+---

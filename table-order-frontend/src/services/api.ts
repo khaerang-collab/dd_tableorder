@@ -18,7 +18,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = path.startsWith('/api') ? `${getBaseUrl()}${path}` : path;
   const res = await fetch(url, { ...options, headers });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: '요청에 실패했습니다' }));
+    const err = await res.json().catch(() => ({ message: `HTTP ${res.status} 오류` }));
     throw new Error(err.message || `HTTP ${res.status}`);
   }
   if (res.status === 204) return undefined as T;

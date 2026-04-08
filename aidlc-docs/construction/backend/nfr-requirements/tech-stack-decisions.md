@@ -125,7 +125,7 @@ app:
   upload:
     path: ${UPLOAD_PATH:/uploads/images}
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}  # prod: Amplify 도메인
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}  # prod: Amplify 도메인 (WebSocket/SSE 직접 연결용)
   rate-limit:
     requests-per-minute: 60
   login:
@@ -152,10 +152,12 @@ app:
 | 항목 | 결정 | 이유 |
 |------|------|------|
 | QA 환경 | 로컬 (localhost) | 빠른 피드백 루프, 비용 절감 |
-| Backend 운영 | AWS EC2 | Spring Boot JAR 직접 배포, 유연한 서버 설정 |
+| Backend 운영 | AWS EC2 + Elastic IP | Spring Boot JAR 직접 배포, 고정 공인 IP로 안정적 접근 |
 | Frontend 운영 | AWS Amplify | Next.js 최적 배포, CI/CD 자동화, CDN 내장 |
+| API 통신 방식 | Next.js API Routes 프록시 | 브라우저→Amplify→EC2, CORS 불필요, 단일 도메인 |
 | Database (운영) | EC2 내 PostgreSQL 또는 Amazon RDS | MVP: EC2 내 PostgreSQL, 추후 RDS 전환 가능 |
 | 이미지 저장 (운영) | EC2 로컬 파일시스템 | MVP 단계 적합, 추후 S3 전환 가능 |
+| 네트워크 | EC2 Elastic IP (고정 공인 IP) | Amplify API Routes → EC2 서버 간 통신에 필요 |
 
 ### 환경별 배포 구성
 
@@ -165,17 +167,32 @@ app:
                                               → localhost:5432 (PostgreSQL)
 
 [운영 - AWS]
-  Browser → AWS Amplify (Next.js)  → EC2 (Spring Boot :8080)
-            (CDN + HTTPS)              → PostgreSQL (EC2 내부 or RDS)
-                                       → /uploads/images (EC2 로컬)
+  Browser → AWS Amplify (Next.js, HTTPS)
+              └── API Routes (/api/*) ──서버 간 통신──→ EC2 Elastic IP (Spring Boot :8080)
+              └── 정적 페이지 (CDN)                        → PostgreSQL (EC2 내부 or RDS)
+                                                           → /uploads/images (EC2 로컬)
 ```
+
+> **API Routes 프록시 패턴**: 브라우저는 Amplify 도메인만 호출하고,
+> Next.js API Routes가 서버 사이드에서 EC2 백엔드로 요청을 전달한다.
+> - 브라우저 → EC2 직접 통신 없음 (CORS 설정 불필요)
+> - EC2 공인 IP가 브라우저에 노출되지 않음 (보안 향상)
+> - WebSocket/SSE는 API Routes 프록시 대신 EC2 직접 연결 필요 (별도 CORS 설정)
+
+### EC2 네트워크 설정
+
+| 항목 | 설정 |
+|------|------|
+| Elastic IP | 고정 공인 IP 할당 (인스턴스 연결 시 무료) |
+| Security Group | 인바운드: 8080(Amplify API Routes), 22(SSH), WebSocket/SSE 포트 |
+| 환경 변수 | `BACKEND_URL=http://<Elastic-IP>:8080` (Amplify 환경 변수) |
 
 ### 환경별 설정 파일
 
 | 프로파일 | 파일 | 주요 설정 |
 |----------|------|-----------|
 | local | `application-local.yml` | H2 인메모리 또는 로컬 PostgreSQL, CORS: localhost:3000 |
-| prod | `application-prod.yml` | EC2 PostgreSQL/RDS, CORS: Amplify 도메인, HTTPS 강제 |
+| prod | `application-prod.yml` | EC2 PostgreSQL/RDS, CORS: Amplify 도메인 (WebSocket/SSE용) |
 
 ---
 

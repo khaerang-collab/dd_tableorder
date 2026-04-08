@@ -120,11 +120,13 @@
 | ID | 요구사항 | 설명 |
 |----|----------|------|
 | NFR-DEPLOY-01 | QA 환경 | 로컬 환경에서 QA 검증 수행 (localhost, H2/로컬 PostgreSQL) |
-| NFR-DEPLOY-02 | 운영 Backend 배포 | AWS EC2 인스턴스에 Spring Boot JAR 배포 |
+| NFR-DEPLOY-02 | 운영 Backend 배포 | AWS EC2 + Elastic IP에 Spring Boot JAR 배포 |
 | NFR-DEPLOY-03 | 운영 Frontend 배포 | AWS Amplify를 통한 Next.js 앱 배포 |
-| NFR-DEPLOY-04 | 환경 분리 | local / prod 프로파일 분리 (application-local.yml, application-prod.yml) |
-| NFR-DEPLOY-05 | EC2 사양 | t3.small 이상 (MVP 기준, 트래픽 증가 시 스케일업) |
-| NFR-DEPLOY-06 | 데이터베이스 | EC2 내 PostgreSQL 또는 Amazon RDS (prod) |
+| NFR-DEPLOY-04 | API 통신 | Next.js API Routes 프록시 패턴 (브라우저→Amplify→EC2, CORS 불필요) |
+| NFR-DEPLOY-05 | 환경 분리 | local / prod 프로파일 분리 (application-local.yml, application-prod.yml) |
+| NFR-DEPLOY-06 | EC2 사양 | t3.small 이상 (MVP 기준, 트래픽 증가 시 스케일업) |
+| NFR-DEPLOY-07 | 데이터베이스 | EC2 내 PostgreSQL 또는 Amazon RDS (prod) |
+| NFR-DEPLOY-08 | 네트워크 | EC2 Elastic IP 할당 (Amplify API Routes → EC2 통신용 고정 공인 IP) |
 
 ---
 

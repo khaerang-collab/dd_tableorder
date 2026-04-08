@@ -68,8 +68,8 @@ export default function MenuPage() {
       const updated = await api.addCartItem(sessionId, menuId, 1);
       setCart(updated);
       setToast(`${menuName} 메뉴를 담았어요`);
-    } catch (e) {
-      setToast('메뉴 추가에 실패했습니다');
+    } catch (e: any) {
+      setToast(e.message || '메뉴 추가에 실패했습니다');
     }
   };
 
