@@ -1,7 +1,14 @@
-import { WS_URL } from '@/lib/constants';
 import type { WsEvent } from '@/types';
 
 type EventHandler = (event: WsEvent) => void;
+
+function getWsUrl(sessionId: number): string {
+  if (typeof window === 'undefined') return '';
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.hostname;
+  // WebSocket은 백엔드(8080)에 직접 연결
+  return `${protocol}//${host}:8080/ws/cart/${sessionId}`;
+}
 
 export class WebSocketService {
   private ws: WebSocket | null = null;
@@ -11,7 +18,9 @@ export class WebSocketService {
 
   connect(sessionId: number) {
     this.sessionId = sessionId;
-    this.ws = new WebSocket(`${WS_URL}/ws/cart/${sessionId}`);
+    const url = getWsUrl(sessionId);
+    if (!url) return;
+    this.ws = new WebSocket(url);
 
     this.ws.onmessage = (event) => {
       try {
