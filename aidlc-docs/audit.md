@@ -178,3 +178,56 @@
 **Context**: Requirements + User Stories updated with chronological cart display and avatar icons
 
 ---
+
+## Units Generation - Autopilot Execution
+**Timestamp**: 2026-04-08T12:00:00Z
+**User Input**: "claude --enable-auto-mode" → autopilot 활성화
+**AI Response**: AIDLC 세션 재개. Workflow Planning + Application Design 완료 상태 확인. Units Generation 진행. Autopilot 모드로 합리적 기본값 적용:
+- Q1: A (2개 유닛 - Backend/Frontend)
+- Q2: A (Backend 먼저 순차)
+- Q3: A (유닛별 독립 진행)
+산출물 3개 생성: unit-of-work.md (2 유닛 정의, 코드 조직 전략), unit-of-work-dependency.md (의존성 매트릭스, API 계약), unit-of-work-story-map.md (23개 스토리 양쪽 유닛 매핑).
+**Context**: INCEPTION - Units Generation COMPLETED (Autopilot), proceeding to CONSTRUCTION PHASE
+
+---
+
+## Deployment Strategy Update
+**Timestamp**: 2026-04-08T12:30:00Z
+**User Input**: "서버를 구성하고 qa 검증의 경우 로컬에서 진행하고 운영환경으로 배포할때는 amplify 와 ec2를 통해 배포하게 해줘."
+**AI Response**: 배포 전략 문서 반영 완료. requirements.md에 배포 환경 구체화 (Frontend: AWS Amplify, Backend: EC2, QA: 로컬). NFR Requirements에 NFR-DEPLOY-01~06 추가. Tech Stack Decisions에 배포 인프라 결정 및 환경별 구성도 추가.
+**Context**: CONSTRUCTION - Unit 1 Backend - NFR Requirements, deployment strategy integrated into existing documents
+
+---
+
+## Construction - Unit 1 Backend: Functional Design
+**Timestamp**: 2026-04-08T12:35:00Z
+**AI Response**: Autopilot 모드로 Functional Design 산출물 3개 생성:
+- domain-entities.md: 11개 엔티티 상세 (필드, 타입, 제약조건, 인덱스)
+- business-logic-model.md: 9개 비즈니스 로직 모델 (인증, 세션 라이프사이클, 메뉴, 장바구니, 주문, 실시간 통신)
+- business-rules.md: 45개 비즈니스 규칙 (BR-AUTH, BR-TABLE, BR-MENU, BR-CART, BR-ORDER, BR-MT, BR-RT + 에러 코드 체계)
+**Context**: CONSTRUCTION - Functional Design COMPLETED (Autopilot)
+
+---
+
+## Construction - Unit 1 Backend: NFR Requirements + NFR Design
+**Timestamp**: 2026-04-08T12:40:00Z
+**AI Response**: Autopilot 모드로 NFR 산출물 4개 생성:
+- nfr-requirements.md: Security Baseline SECURITY-01~15 적용, 성능(API 500ms, SSE 2초), 확장성(10+ 매장), 가용성(99.5%), 배포(EC2+Amplify)
+- tech-stack-decisions.md: Java 17, Spring Boot 3.2, PostgreSQL 16, Gradle, 의존성 상세, 환경별 설정
+- nfr-design-patterns.md: JWT Filter Chain, WebSocket/SSE 패턴, 멀티테넌트 쿼리, 트랜잭션, Rate Limiting, 로깅
+- logical-components.md: Security/WebSocket/SSE 레이어, 6개 도메인 서비스, 크로스커팅 컴포넌트
+**Context**: CONSTRUCTION - NFR Requirements + NFR Design COMPLETED (Autopilot)
+
+---
+
+## Construction - Unit 1 Backend: Code Generation (진행 중)
+**Timestamp**: 2026-04-08T12:50:00Z
+**AI Response**: Code Generation Part 1 (Planning) 완료. backend-code-generation-plan.md 생성 (12 Steps).
+최신 요구사항 반영: 카카오 OAuth 필수 로그인, CustomerProfile 엔티티, 장바구니 메뉴 단위 병합+아바타, 누구나 수정 가능.
+Part 2 (Generation) 진행 중: 3개 병렬 에이전트로 코드 생성 실행.
+- Step 1: 프로젝트 구조 + Gradle + 설정 파일 완료
+- Step 2-10: 병렬 에이전트 실행 중 (DB migrations, Common, 6개 도메인)
+- Step 12: Dockerfile, .gitignore, data.sql 완료
+**Context**: CONSTRUCTION - Code Generation IN PROGRESS
+
+---

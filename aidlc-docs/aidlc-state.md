@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Greenfield
 - **Start Date**: 2026-04-08T10:30:00Z
-- **Current Stage**: INCEPTION - Application Design
+- **Current Stage**: CONSTRUCTION - Unit 1 Backend - Code Generation COMPLETE
 
 ## Workspace State
 - **Existing Code**: No
@@ -28,14 +28,14 @@
 - [x] User Stories - 2 personas, 10 epics, 23 stories (17 P0, 6 P1)
 - [x] Workflow Planning - 7 EXECUTE, 1 SKIP (Infra Design)
 - [x] Application Design - 6 도메인, 11 DB 테이블, WebSocket(장바구니)+SSE(모니터링)
-- [ ] Units Generation - EXECUTE
+- [x] Units Generation - 2 units (Backend, Frontend), Backend-first 순차 개발
 
 ### CONSTRUCTION PHASE (per unit)
-- [ ] Functional Design - EXECUTE
-- [ ] NFR Requirements - EXECUTE
-- [ ] NFR Design - EXECUTE
+- [x] Functional Design - Unit 1 Backend 완료 (domain-entities, business-logic-model, business-rules)
+- [x] NFR Requirements - Unit 1 Backend 완료 (Security Baseline SECURITY-01~15 적용, 성능/확장성/가용성)
+- [x] NFR Design - Unit 1 Backend 완료 (JWT Filter Chain, WebSocket/SSE 패턴, Rate Limiting, 로깅)
 - [ ] Infrastructure Design - SKIP (MVP, 운영 단계에서 진행)
-- [ ] Code Generation - EXECUTE (ALWAYS)
+- [x] Code Generation - Unit 1 Backend 완료 (82 Java, 10 SQL, Dockerfile, data.sql)
 - [ ] Build and Test - EXECUTE (ALWAYS)
 
 ### OPERATIONS PHASE

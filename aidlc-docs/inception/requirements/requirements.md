@@ -21,7 +21,8 @@
 | **Database** | PostgreSQL |
 | **실시간 통신** | Server-Sent Events (SSE) |
 | **인증** | JWT 토큰 기반 |
-| **배포 환경** | AWS 클라우드 |
+| **배포 환경** | AWS 클라우드 (Frontend: AWS Amplify, Backend: EC2) |
+| **QA 환경** | 로컬 (localhost) |
 | **이미지 관리** | 서버에 파일 업로드 및 로컬 저장 |
 | **코드 언어** | 한영 혼합 (API/변수명: 영어, 주석/UI 텍스트: 한국어) |
 
