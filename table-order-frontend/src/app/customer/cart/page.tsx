@@ -59,6 +59,12 @@ export default function CartPage() {
   const items = cart?.items || [];
   const isMyItem = (item: CartItem) => item.customerProfileId === myProfileId;
 
+  const EMOJIS = ['😊', '🐶', '🐱', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', '🐰', '🐙', '🦄', '🐳'];
+  const profileEmoji = (profileId?: number) => {
+    if (!profileId) return '👤';
+    return EMOJIS[profileId % EMOJIS.length];
+  };
+
   return (
     <div className="bg-white min-h-screen pb-32">
       <div className="px-6 py-4 border-b border-coolGray-200">
@@ -81,8 +87,8 @@ export default function CartPage() {
                 {item.profileImageUrl ? (
                   <img src={item.profileImageUrl} alt="" className="w-8 h-8 rounded-full" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-coolGray-100 flex items-center justify-center text-sm">
-                    {item.nickname?.charAt(0) || '👤'}
+                  <div className="w-8 h-8 rounded-full bg-coolGray-100 flex items-center justify-center text-lg">
+                    {profileEmoji(item.customerProfileId)}
                   </div>
                 )}
                 {isMyItem(item) && (
