@@ -10,6 +10,7 @@ import com.tableorder.order.entity.Order;
 import com.tableorder.order.entity.OrderItem;
 import com.tableorder.order.repository.OrderRepository;
 import com.tableorder.order.sse.OrderSseService;
+import com.tableorder.recommend.service.RecommendService;
 import com.tableorder.table.entity.RestaurantTable;
 import com.tableorder.table.entity.TableSession;
 import com.tableorder.table.repository.TableRepository;
@@ -34,6 +35,7 @@ public class OrderService {
     private final TableSessionRepository sessionRepository;
     private final TableRepository tableRepository;
     private final CustomerProfileService customerProfileService;
+    private final RecommendService recommendService;
 
     @Transactional
     public OrderResponse createOrder(Long sessionId) {
@@ -65,6 +67,10 @@ public class OrderService {
         order.setTotalAmount(total);
         orderRepository.save(order);
         cartService.clearAll(sessionId);
+
+        // 페어링 데이터 업데이트
+        try { recommendService.updatePairings(table.getStore().getId(), order.getItems()); }
+        catch (Exception e) { /* 추천 업데이트 실패해도 주문은 정상 진행 */ }
 
         cartWebSocketHandler.broadcast(sessionId, "CART_CLEARED", Map.of("reason", "ORDER_PLACED"));
         orderSseService.publish(table.getStore().getId(), "NEW_ORDER", Map.of(
@@ -124,8 +130,8 @@ public class OrderService {
     }
 
     private String generateOrderNumber() {
-        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        return ts + "-" + String.format("%04d", new Random().nextInt(10000));
+        long count = orderRepository.count() + 1;
+        return String.format("%03d", count);
     }
 
     private OrderResponse toResponse(Order o) {

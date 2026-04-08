@@ -9,6 +9,7 @@ import CategoryTabs from '@/components/shared/CategoryTabs';
 import MenuListItem from '@/components/shared/MenuListItem';
 import CartFloatingBar from '@/components/shared/CartFloatingBar';
 import Toast from '@/components/shared/Toast';
+import PromotionNudge from '@/components/customer/PromotionNudge';
 import type { MenuCategory, Cart } from '@/types';
 
 export default function MenuPage() {
@@ -93,6 +94,7 @@ export default function MenuPage() {
         <p className="text-t7 text-coolGray-500 mt-1">매장 정보는 관리자에게 문의하세요.</p>
       </div>
 
+      <PromotionNudge cartAmount={cart?.totalAmount || 0} />
       <CartFloatingBar totalAmount={cart?.totalAmount || 0} itemCount={cart?.items.length || 0} />
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>
