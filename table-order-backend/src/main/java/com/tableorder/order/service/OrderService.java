@@ -130,8 +130,9 @@ public class OrderService {
     }
 
     private String generateOrderNumber() {
-        long count = orderRepository.count() + 1;
-        return String.format("%03d", count);
+        String ts = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"));
+        String rand = String.format("%04d", new java.util.Random().nextInt(10000));
+        return ts + "-" + rand;
     }
 
     private OrderResponse toResponse(Order o) {

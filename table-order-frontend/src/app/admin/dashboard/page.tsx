@@ -38,23 +38,10 @@ export default function DashboardPage() {
     }
   }, [storeId, loadDashboard]);
 
-  // 대시보드 갱신 후 열려있는 모달도 동기화
-  const refreshDashboardAndModal = useCallback(async () => {
-    if (!storeId) return;
-    try {
-      const data = await api.getDashboard(storeId);
-      setDashboard(data);
-      if (selectedTable) {
-        const updated = data.tables.find(t => t.tableId === selectedTable.tableId);
-        setSelectedTable(updated || null);
-      }
-    } catch {}
-  }, [storeId, selectedTable]);
-
   const updateStatus = async (orderId: number, status: string) => {
     try {
       await api.updateOrderStatus(orderId, status);
-      await refreshDashboardAndModal();
+      loadDashboard();
       setToast('주문 상태가 변경되었습니다');
     } catch (e: any) { setToast(e.message); }
   };
@@ -64,7 +51,7 @@ export default function DashboardPage() {
       title: '주문 삭제', message: '이 주문을 삭제하시겠습니까?',
       action: async () => {
         await api.deleteOrder(orderId);
-        await refreshDashboardAndModal(); setConfirmAction(null);
+        loadDashboard(); setConfirmAction(null);
         setToast('주문이 삭제되었습니다');
       },
     });
