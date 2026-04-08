@@ -1,4 +1,4 @@
-import type { Cart, Dashboard, KakaoLoginResponse, AdminLoginResponse, MenuCategory, Order, RestaurantTable, OrderHistory } from '@/types';
+import type { Cart, Dashboard, KakaoLoginResponse, AdminLoginResponse, MenuCategory, Order, RestaurantTable, OrderHistory, StaffCall } from '@/types';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -91,6 +91,17 @@ export const api = {
   // Admin - Order History
   getOrderHistory: (storeId: number, tableId?: number) =>
     request<OrderHistory[]>(`/api/admin/stores/${storeId}/orders/history${tableId ? `?tableId=${tableId}` : ''}`),
+
+  // Staff Call (customer)
+  createStaffCall: (sessionId: number, reason: string, message?: string) =>
+    request<StaffCall>(`/api/customer/sessions/${sessionId}/staff-calls`, {
+      method: 'POST', body: JSON.stringify({ reason, message: message || '' }),
+    }),
+
+  // Staff Call (admin)
+  getStaffCalls: (storeId: number) => request<StaffCall[]>(`/api/admin/stores/${storeId}/staff-calls`),
+  attendStaffCall: (callId: number) =>
+    request<StaffCall>(`/api/admin/staff-calls/${callId}/attend`, { method: 'PUT' }),
 
   // Image
   uploadImage: async (storeId: number, file: File): Promise<{ imageUrl: string }> => {
