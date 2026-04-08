@@ -26,6 +26,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String clientIp = request.getRemoteAddr();
+        // 로컬 프록시(Next.js rewrite)는 rate limit 제외
+        if ("127.0.0.1".equals(clientIp) || "0:0:0:0:0:0:0:1".equals(clientIp)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         long now = System.currentTimeMillis();
         long[] bucket = buckets.computeIfAbsent(clientIp, k -> new long[]{0, now});
 
@@ -37,8 +42,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
             bucket[0]++;
             if (bucket[0] > maxRequests) {
                 response.setStatus(429);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"code\":\"RATE_LIMITED\",\"message\":\"요청 한도를 초과했습니다\"}");
+                response.setContentType("application/json;charset=UTF-8");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"code\":\"RATE_LIMITED\",\"message\":\"요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.\"}");
                 return;
             }
         }
