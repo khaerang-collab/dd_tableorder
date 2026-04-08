@@ -42,3 +42,14 @@ body {
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
 }
+
+/* 축하 토스트: 나타남 → 유지 → 페이드아웃 (5초) */
+@keyframes fade-in-out {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.animate-fade-in-out {
+  animation: fade-in-out 5s ease-in-out forwards;
+}
