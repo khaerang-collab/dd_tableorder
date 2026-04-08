@@ -59,7 +59,11 @@ export default function MenuPage() {
   }, []);
 
   const handleAddToCart = async (menuId: number, menuName: string) => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      setToast('로그인이 필요합니다');
+      router.replace('/customer/table-login?storeId=1&table=1');
+      return;
+    }
     try {
       const updated = await api.addCartItem(sessionId, menuId, 1);
       setCart(updated);

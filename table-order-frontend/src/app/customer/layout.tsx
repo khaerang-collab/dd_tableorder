@@ -27,6 +27,11 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       if (event.type === 'USER_JOINED' || event.type === 'USER_LEFT') {
         setUserCount((event.data as any).activeUserCount || 0);
       }
+      if (event.type === 'SESSION_COMPLETED') {
+        authService.logout();
+        alert('이용이 완료되었습니다. 다시 QR을 스캔해주세요.');
+        window.location.href = '/customer/table-login?storeId=1&table=1';
+      }
     });
 
     return () => { unsub(); wsService.disconnect(); };

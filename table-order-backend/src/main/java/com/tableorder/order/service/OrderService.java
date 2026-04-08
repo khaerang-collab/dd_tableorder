@@ -44,6 +44,9 @@ public class OrderService {
 
         TableSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new NotFoundException("세션을 찾을 수 없습니다"));
+        if (TableSession.COMPLETED.equals(session.getStatus())) {
+            throw new ForbiddenException("이용 완료된 세션입니다. 다시 QR을 스캔해주세요.");
+        }
         RestaurantTable table = session.getTable();
 
         String orderNumber = generateOrderNumber();
@@ -140,9 +143,9 @@ public class OrderService {
     }
 
     private String generateOrderNumber() {
-        String ts = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"));
-        String rand = String.format("%04d", new java.util.Random().nextInt(10000));
-        return ts + "-" + rand;
+        long maxId = orderRepository.findAll().stream()
+                .mapToLong(Order::getId).max().orElse(0);
+        return String.valueOf(maxId + 1);
     }
 
     private OrderResponse toResponse(Order o) {
