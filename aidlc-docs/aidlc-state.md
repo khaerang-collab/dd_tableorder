@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Greenfield
 - **Start Date**: 2026-04-08T10:30:00Z
-- **Current Stage**: CONSTRUCTION - Unit 1 Backend - Code Generation COMPLETE
+- **Current Stage**: CONSTRUCTION - Code Generation COMPLETE (Both Units)
 
 ## Workspace State
 - **Existing Code**: No
@@ -35,7 +35,7 @@
 - [x] NFR Requirements - Unit 1 Backend 완료 (Security Baseline SECURITY-01~15 적용, 성능/확장성/가용성)
 - [x] NFR Design - Unit 1 Backend 완료 (JWT Filter Chain, WebSocket/SSE 패턴, Rate Limiting, 로깅)
 - [ ] Infrastructure Design - SKIP (MVP, 운영 단계에서 진행)
-- [x] Code Generation - Unit 1 Backend 완료 (82 Java, 10 SQL, Dockerfile, data.sql)
+- [x] Code Generation - Unit 1 Backend (82 Java, 10 SQL) + Unit 2 Frontend (27 TSX/TS, 7 설정)
 - [ ] Build and Test - EXECUTE (ALWAYS)
 
 ### OPERATIONS PHASE

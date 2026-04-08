@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  color: #2C3744;
+  background-color: #F5F7F9;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 모바일 퍼스트 컨테이너 */
+.mobile-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  min-height: 100dvh;
+  position: relative;
+}
+
+@media (min-width: 601px) {
+  .mobile-container {
+    border-left: 1px solid #E5E8EB;
+    border-right: 1px solid #E5E8EB;
+  }
+}
+
+/* 스크롤바 숨기기 (카테고리 탭) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
