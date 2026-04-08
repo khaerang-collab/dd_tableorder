@@ -20,7 +20,13 @@ export default function DashboardPage() {
   useEffect(() => { setStoreId(authService.getStoreId()); }, []);
 
   const loadDashboard = useCallback(() => {
-    if (storeId) api.getDashboard(storeId).then(setDashboard).catch(() => {});
+    if (storeId) api.getDashboard(storeId).then((data) => {
+      setDashboard(data);
+      setSelectedTable((prev) => {
+        if (!prev) return null;
+        return data.tables.find((t: TableOrderSummary) => t.tableId === prev.tableId) ?? null;
+      });
+    }).catch(() => {});
   }, [storeId]);
 
   useEffect(() => {
