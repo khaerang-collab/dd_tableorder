@@ -94,7 +94,7 @@ export default function MenuPage() {
         <p className="text-t7 text-coolGray-500 mt-1">매장 정보는 관리자에게 문의하세요.</p>
       </div>
 
-      <PromotionNudge cartAmount={cart?.totalAmount || 0} />
+      <PromotionNudge cartAmount={cart?.totalAmount || 0} hasCartItems={(cart?.items.length || 0) > 0} />
       <CartFloatingBar totalAmount={cart?.totalAmount || 0} itemCount={cart?.items.length || 0} />
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>
