@@ -76,8 +76,9 @@ export default function MenuPage() {
       <CategoryTabs categories={tabCategories} activeId={activeCategory} onSelect={handleCategorySelect} />
 
       {categories.map((cat) => (
-        <div key={cat.categoryId} ref={(el) => { sectionRefs.current[cat.categoryId] = el; }}>
-          <div className="px-6 py-3 bg-white">
+        <div key={cat.categoryId}>
+          <div ref={(el) => { sectionRefs.current[cat.categoryId] = el; }}
+               className="px-6 py-3 bg-white scroll-mt-[100px]">
             <h2 className="text-t5 font-bold text-coolGray-900">{cat.categoryName}</h2>
           </div>
           {cat.menus.map((menu) => (
