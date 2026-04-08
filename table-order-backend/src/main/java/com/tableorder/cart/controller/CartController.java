@@ -31,8 +31,8 @@ public class CartController {
     public ResponseEntity<CartResponse> addItem(@PathVariable Long sessionId,
                                                  @Valid @RequestBody AddCartItemRequest request,
                                                  @AuthenticationPrincipal Claims claims) {
-        Long profileId = claims.get("profileId", Long.class);
-        String deviceId = claims.get("deviceId", String.class);
+        Long profileId = claims.get("profileId") != null ? ((Number) claims.get("profileId")).longValue() : null;
+        String deviceId = claims.get("deviceId") != null ? claims.get("deviceId").toString() : "unknown";
         CartResponse cart = cartService.addItem(sessionId, request.menuId(), request.quantity(), profileId, deviceId);
         webSocketHandler.broadcast(sessionId, "CART_ITEM_ADDED", Map.of("menuId", request.menuId()));
         return ResponseEntity.ok(cart);

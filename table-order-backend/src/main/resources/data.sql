@@ -8,7 +8,7 @@ ON CONFLICT DO NOTHING;
 
 -- 관리자 (비밀번호: admin1234)
 INSERT INTO admin_users (id, store_id, username, password_hash) VALUES
-(1, 1, 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
+(1, 1, 'admin', '$2b$10$AjyJKZajOwBKw.8gF2kQgeEuK/3iQRFTuRTKQFtTD7POB20cuagGC')
 ON CONFLICT DO NOTHING;
 
 -- 테이블

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class CartItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "cart_id", nullable = false) private Cart cart;
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "menu_id", nullable = false) private Menu menu;
+    @ManyToOne(fetch = FetchType.EAGER) @JoinColumn(name = "menu_id", nullable = false) private Menu menu;
     @Column(name = "customer_profile_id") private Long customerProfileId;
     @Column(name = "device_id", nullable = false) private String deviceId;
     @Column(nullable = false) private int quantity;
