@@ -131,11 +131,11 @@ class AuthControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    @SuppressWarnings("unchecked")
     private static org.hamcrest.Matcher<Integer> oneOf(int... values) {
-        return org.hamcrest.Matchers.anyOf(
-                java.util.Arrays.stream(values)
-                        .mapToObj(org.hamcrest.Matchers::equalTo)
-                        .toList()
-        );
+        org.hamcrest.Matcher<Integer>[] matchers = java.util.Arrays.stream(values)
+                .mapToObj(org.hamcrest.Matchers::equalTo)
+                .toArray(org.hamcrest.Matcher[]::new);
+        return org.hamcrest.Matchers.anyOf(matchers);
     }
 }
