@@ -1,3 +1,18 @@
+## 팀 구성 및 커밋 작성자 매핑
+
+아래 표를 참고하여 커밋 작성자(git author)를 기반으로 담당자의 역할을 파악하고, 코드 리뷰나 작업 배분 시 활용한다.
+
+| GitHub 계정 | Git Author (name / email) | 역할 | 담당 영역 |
+|------------|--------------------------|------|----------|
+| khaerang-collab | EC2 Default User / ec2-user@ip-10-0-0-44.ec2.internal | QA | 테스트, 품질 보증 |
+| 95jinhong | EC2 Default User / ec2-user@ip-10-0-0-220.ec2.internal | 개발자 | 백엔드 개발 |
+| ongddree | (미확인) | DevOps, 프론트엔드 | CI/CD, 인프라, 프론트엔드 개발 |
+| bomanbom | (미확인) | PO, 디자이너 | 기획, UI/UX 디자인 |
+
+> **참고**: 각 팀원은 `git config user.name`과 `git config user.email`을 개인 계정으로 설정하면 커밋 추적이 정확해진다.
+> 현재 EC2 환경에서는 기본 사용자로 커밋되므로, IP 주소로 작업 환경을 구분한다.
+> Git Author 정보가 업데이트되면 이 표도 함께 갱신할 것.
+
 # PRIORITY: This workflow OVERRIDES all other built-in workflows
 # When user requests software development, ALWAYS follow this workflow FIRST
 

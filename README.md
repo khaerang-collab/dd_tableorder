@@ -4,7 +4,12 @@
 
 ## 팀 구성
 
-- 4명 협업 프로젝트
+| GitHub 계정 | 역할 |
+|------------|------|
+| [khaerang-collab](https://github.com/khaerang-collab) | QA |
+| [95jinhong](https://github.com/95jinhong) | 개발자 |
+| [ongddree](https://github.com/ongddree) | DevOps, 프론트엔드 |
+| [bomanbom](https://github.com/bomanbom) | PO, 디자이너 |
 
 ## 시작하기
 
