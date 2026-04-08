@@ -55,6 +55,8 @@ export interface OrderItem {
   menuName: string;
   quantity: number;
   unitPrice: number;
+  customerProfileId?: number;
+  customerNickname?: string;
 }
 
 export interface Order {

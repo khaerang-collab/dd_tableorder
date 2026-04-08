@@ -116,7 +116,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="mt-2 space-y-1">
                     {order.items.map((item) => (
-                      <p key={item.id} className="text-t7 text-coolGray-700">{item.menuName} × {item.quantity}</p>
+                      <p key={item.id} className="text-t7 text-coolGray-700">
+                        {item.menuName} × {item.quantity}
+                        {item.customerNickname && (
+                          <span className="ml-1 text-blue-300 text-[11px]">({item.customerNickname})</span>
+                        )}
+                      </p>
                     ))}
                   </div>
                   <div className="flex justify-between items-center mt-3 pt-2 border-t border-coolGray-100">

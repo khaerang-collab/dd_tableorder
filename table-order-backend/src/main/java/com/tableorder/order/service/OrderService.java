@@ -52,11 +52,21 @@ public class OrderService {
 
         int total = 0;
         for (CartItem ci : cartItems) {
+            // 주문자 닉네임 조회
+            String nickname = null;
+            if (ci.getCustomerProfileId() != null) {
+                try { nickname = customerProfileService.getById(ci.getCustomerProfileId()).getNickname(); }
+                catch (Exception e) { /* ignore */ }
+            }
+
             OrderItem oi = OrderItem.builder()
                     .order(order).menuId(ci.getMenu().getId())
                     .menuName(ci.getMenu().getName())
                     .quantity(ci.getQuantity())
-                    .unitPrice(ci.getMenu().getPrice()).build();
+                    .unitPrice(ci.getMenu().getPrice())
+                    .customerProfileId(ci.getCustomerProfileId())
+                    .customerNickname(nickname)
+                    .build();
             order.getItems().add(oi);
             total += ci.getQuantity() * ci.getMenu().getPrice();
 
@@ -137,7 +147,7 @@ public class OrderService {
 
     private OrderResponse toResponse(Order o) {
         List<OrderItemResponse> items = o.getItems().stream()
-                .map(i -> new OrderItemResponse(i.getId(), i.getMenuName(), i.getQuantity(), i.getUnitPrice()))
+                .map(i -> new OrderItemResponse(i.getId(), i.getMenuName(), i.getQuantity(), i.getUnitPrice(), i.getCustomerProfileId(), i.getCustomerNickname()))
                 .toList();
         return new OrderResponse(o.getId(), o.getOrderNumber(), o.getTotalAmount(), o.getStatus(), items, o.getCreatedAt());
     }

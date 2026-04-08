@@ -53,7 +53,12 @@ export default function OrderHistoryPage() {
               <div className="mt-2 space-y-1">
                 {order.items.map((item, idx) => (
                   <div key={item.id || idx} className="flex justify-between text-t7">
-                    <span className="text-coolGray-700">{item.menuName} x {item.quantity}</span>
+                    <span className="text-coolGray-700">
+                      {item.menuName} x {item.quantity}
+                      {item.customerNickname && (
+                        <span className="ml-1 text-blue-300 text-[11px]">({item.customerNickname})</span>
+                      )}
+                    </span>
                     <span className="text-coolGray-900">{formatPrice(item.unitPrice * item.quantity)}</span>
                   </div>
                 ))}
