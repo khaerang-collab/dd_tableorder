@@ -18,7 +18,7 @@ public class Order {
     @Column(name = "order_number", nullable = false, unique = true) private String orderNumber;
     @Column(name = "total_amount", nullable = false) private int totalAmount;
     @Column(nullable = false) @Builder.Default private String status = PENDING;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default private List<OrderItem> items = new ArrayList<>();
     @Column(name = "created_at") private LocalDateTime createdAt;
     @Column(name = "updated_at") private LocalDateTime updatedAt;

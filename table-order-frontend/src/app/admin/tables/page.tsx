@@ -10,9 +10,11 @@ export default function TableManagePage() {
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [newNumber, setNewNumber] = useState('');
   const [toast, setToast] = useState('');
-  const storeId = authService.getStoreId();
+  const [storeId, setStoreId] = useState<number | null>(null);
 
-  const loadTables = () => { if (storeId) api.getTables(storeId).then(setTables); };
+  useEffect(() => { setStoreId(authService.getStoreId()); }, []);
+
+  const loadTables = () => { if (storeId) api.getTables(storeId).then(setTables).catch(() => {}); };
   useEffect(loadTables, [storeId]);
 
   const createTable = async () => {

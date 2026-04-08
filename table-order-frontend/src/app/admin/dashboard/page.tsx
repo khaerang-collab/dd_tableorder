@@ -15,10 +15,12 @@ export default function DashboardPage() {
   const [selectedTable, setSelectedTable] = useState<TableOrderSummary | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; action: () => void } | null>(null);
   const [toast, setToast] = useState('');
-  const storeId = authService.getStoreId();
+  const [storeId, setStoreId] = useState<number | null>(null);
+
+  useEffect(() => { setStoreId(authService.getStoreId()); }, []);
 
   const loadDashboard = useCallback(() => {
-    if (storeId) api.getDashboard(storeId).then(setDashboard);
+    if (storeId) api.getDashboard(storeId).then(setDashboard).catch(() => {});
   }, [storeId]);
 
   useEffect(() => {

@@ -15,16 +15,22 @@ export default function MenuManagePage() {
   const [menuForm, setMenuForm] = useState({ categoryId: 0, name: '', price: '', description: '' });
   const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; action: () => void } | null>(null);
   const [toast, setToast] = useState('');
-  const storeId = authService.getStoreId();
+  const [storeId, setStoreId] = useState<number | null>(null);
 
-  const loadMenus = () => { if (storeId) api.getMenus(storeId).then(setCategories); };
+  useEffect(() => {
+    setStoreId(authService.getStoreId());
+  }, []);
+
+  const loadMenus = () => { if (storeId) api.getMenus(storeId).then(setCategories).catch(() => {}); };
   useEffect(loadMenus, [storeId]);
 
   const createCategory = async () => {
     if (!storeId || !newCatName.trim()) return;
-    await api.createCategory(storeId, newCatName.trim());
-    setNewCatName(''); loadMenus();
-    setToast('카테고리가 추가되었습니다');
+    try {
+      await api.createCategory(storeId, newCatName.trim());
+      setNewCatName(''); loadMenus();
+      setToast('카테고리가 추가되었습니다');
+    } catch (e: any) { setToast(e.message || '카테고리 추가 실패'); }
   };
 
   const deleteCategory = (catId: number, catName: string) => {
@@ -41,13 +47,15 @@ export default function MenuManagePage() {
 
   const createMenu = async () => {
     if (!storeId || !menuForm.name || !menuForm.price || !menuForm.categoryId) return;
-    await api.createMenu(storeId, {
-      categoryId: menuForm.categoryId, name: menuForm.name,
-      price: Number(menuForm.price), description: menuForm.description,
-    });
-    setShowMenuForm(false);
-    setMenuForm({ categoryId: 0, name: '', price: '', description: '' });
-    loadMenus(); setToast('메뉴가 추가되었습니다');
+    try {
+      await api.createMenu(storeId, {
+        categoryId: menuForm.categoryId, name: menuForm.name,
+        price: Number(menuForm.price), description: menuForm.description,
+      });
+      setShowMenuForm(false);
+      setMenuForm({ categoryId: 0, name: '', price: '', description: '' });
+      loadMenus(); setToast('메뉴가 추가되었습니다');
+    } catch (e: any) { setToast(e.message || '메뉴 추가 실패'); }
   };
 
   const deleteMenu = (menuId: number, menuName: string) => {
