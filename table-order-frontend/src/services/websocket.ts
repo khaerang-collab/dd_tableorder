@@ -2,23 +2,27 @@ import type { WsEvent } from '@/types';
 
 type EventHandler = (event: WsEvent) => void;
 
-function getWsUrl(sessionId: number): string {
+function getWsUrl(sessionId: number, profileId?: number): string {
   if (typeof window === 'undefined') return '';
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.hostname;
   // WebSocket은 백엔드(8080)에 직접 연결
-  return `${protocol}//${host}:8080/ws/cart/${sessionId}`;
+  let url = `${protocol}//${host}:8080/ws/cart/${sessionId}`;
+  if (profileId) url += `?profileId=${profileId}`;
+  return url;
 }
 
 export class WebSocketService {
   private ws: WebSocket | null = null;
   private handlers: EventHandler[] = [];
   private sessionId: number | null = null;
+  private profileId: number | undefined;
   private reconnectTimer: NodeJS.Timeout | null = null;
 
-  connect(sessionId: number) {
+  connect(sessionId: number, profileId?: number) {
     this.sessionId = sessionId;
-    const url = getWsUrl(sessionId);
+    this.profileId = profileId;
+    const url = getWsUrl(sessionId, profileId);
     if (!url) return;
     this.ws = new WebSocket(url);
 
@@ -31,7 +35,7 @@ export class WebSocketService {
 
     this.ws.onclose = () => {
       this.reconnectTimer = setTimeout(() => {
-        if (this.sessionId) this.connect(this.sessionId);
+        if (this.sessionId) this.connect(this.sessionId, this.profileId);
       }, 3000);
     };
 

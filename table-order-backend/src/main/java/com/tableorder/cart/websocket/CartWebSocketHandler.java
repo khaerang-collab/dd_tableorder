@@ -10,7 +10,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -21,16 +23,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class CartWebSocketHandler extends TextWebSocketHandler {
 
     private final ConcurrentHashMap<Long, Set<WebSocketSession>> sessionMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<WebSocketSession, Long> wsProfileMap = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Long sessionId = extractSessionId(session);
         if (sessionId != null) {
+            Long profileId = extractProfileId(session);
+            if (profileId != null) wsProfileMap.put(session, profileId);
             sessionMap.computeIfAbsent(sessionId, k -> new CopyOnWriteArraySet<>()).add(session);
             int count = sessionMap.get(sessionId).size();
-            broadcast(sessionId, "USER_JOINED", Map.of("activeUserCount", count));
-            log.info("WebSocket connected: sessionId={}, connections={}", sessionId, count);
+            List<Long> profileIds = getConnectedProfileIds(sessionId);
+            broadcast(sessionId, "USER_JOINED", Map.of("activeUserCount", count, "connectedProfileIds", profileIds));
+            log.info("WebSocket connected: sessionId={}, connections={}, profiles={}", sessionId, count, profileIds);
         }
     }
 
@@ -38,12 +44,16 @@ public class CartWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         Long sessionId = extractSessionId(session);
         if (sessionId != null) {
+            wsProfileMap.remove(session);
             Set<WebSocketSession> sessions = sessionMap.get(sessionId);
             if (sessions != null) {
                 sessions.remove(session);
                 int count = sessions.size();
                 if (count == 0) sessionMap.remove(sessionId);
-                else broadcast(sessionId, "USER_LEFT", Map.of("activeUserCount", count));
+                else {
+                    List<Long> profileIds = getConnectedProfileIds(sessionId);
+                    broadcast(sessionId, "USER_LEFT", Map.of("activeUserCount", count, "connectedProfileIds", profileIds));
+                }
             }
         }
     }
@@ -70,6 +80,16 @@ public class CartWebSocketHandler extends TextWebSocketHandler {
                 broadcast(sessionId, "SESSION_COMPLETED", Map.of("tableId", tableId)));
     }
 
+    private List<Long> getConnectedProfileIds(Long sessionId) {
+        Set<WebSocketSession> sessions = sessionMap.get(sessionId);
+        if (sessions == null) return List.of();
+        return sessions.stream()
+                .map(wsProfileMap::get)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
     private Long extractSessionId(WebSocketSession session) {
         URI uri = session.getUri();
         if (uri == null) return null;
@@ -77,5 +97,18 @@ public class CartWebSocketHandler extends TextWebSocketHandler {
         String[] parts = path.split("/");
         try { return Long.parseLong(parts[parts.length - 1]); }
         catch (NumberFormatException e) { return null; }
+    }
+
+    private Long extractProfileId(WebSocketSession session) {
+        URI uri = session.getUri();
+        if (uri == null || uri.getQuery() == null) return null;
+        for (String param : uri.getQuery().split("&")) {
+            String[] kv = param.split("=");
+            if (kv.length == 2 && "profileId".equals(kv[0])) {
+                try { return Long.parseLong(kv[1]); }
+                catch (NumberFormatException e) { return null; }
+            }
+        }
+        return null;
     }
 }
