@@ -126,6 +126,18 @@ export interface CustomerProfile {
   lastVisitAt?: string;
 }
 
+// StaffCall
+export interface StaffCall {
+  id: number;
+  tableId: number;
+  tableNumber: number;
+  reason: string;
+  message?: string;
+  status: 'PENDING' | 'ATTENDED';
+  calledAt: string;
+  attendedAt?: string;
+}
+
 // OrderHistory
 export interface OrderHistory {
   id: number;

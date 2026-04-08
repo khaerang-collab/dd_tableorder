@@ -10,7 +10,7 @@ export class SseService {
     const token = localStorage.getItem('token');
     this.source = new EventSource(`${API_URL}/api/admin/stores/${storeId}/orders/stream?token=${token}`);
 
-    const events = ['NEW_ORDER', 'ORDER_STATUS_CHANGED', 'ORDER_DELETED', 'TABLE_COMPLETED', 'CONNECTED'];
+    const events = ['NEW_ORDER', 'ORDER_STATUS_CHANGED', 'ORDER_DELETED', 'TABLE_COMPLETED', 'STAFF_CALL', 'CONNECTED'];
     events.forEach((type) => {
       this.source?.addEventListener(type, (e) => {
         try {
