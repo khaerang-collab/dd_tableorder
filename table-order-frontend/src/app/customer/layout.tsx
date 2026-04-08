@@ -11,8 +11,10 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   const [tableNumber, setTableNumber] = useState(0);
   const [userCount, setUserCount] = useState(0);
   const [showStaffCall, setShowStaffCall] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    setIsLoggedIn(authService.isLoggedIn());
     const session = authService.getSession();
     if (session) {
       setStoreName(session.storeName as string || '');
@@ -34,13 +36,19 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
     <div className="mobile-container">
       <header className="sticky top-0 z-20 bg-white border-b border-coolGray-200 px-4 py-3 flex items-center justify-between"
               style={{ paddingTop: 'calc(var(--safe-area-top) + 12px)' }}>
-        <button onClick={() => setShowStaffCall(true)}
-                className="text-t5 text-coolGray-700 flex items-center gap-1" data-testid="staff-call-button">
-          🔔 직원호출
-        </button>
-        <Link href="/customer/orders" className="text-t5 text-coolGray-900" data-testid="order-history-link">
-          주문내역
-        </Link>
+        {isLoggedIn ? (
+          <>
+            <button onClick={() => setShowStaffCall(true)}
+                    className="text-t5 text-coolGray-700 flex items-center gap-1" data-testid="staff-call-button">
+              🔔 직원호출
+            </button>
+            <Link href="/customer/orders" className="text-t5 text-coolGray-900" data-testid="order-history-link">
+              주문내역
+            </Link>
+          </>
+        ) : (
+          <div />
+        )}
       </header>
 
       {storeName && (
